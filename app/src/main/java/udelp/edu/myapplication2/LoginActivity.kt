@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
         val aceptarButton: Button = findViewById<Button>(R.id.aceptarLogin)
         aceptarButton.setOnClickListener {
            doLogin()
