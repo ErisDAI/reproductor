@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import android.content.Intent
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +24,9 @@ class LoginActivity : AppCompatActivity() {
         val password : EditText = findViewById<EditText>(R.id.password)
         if (username.getText().isNotEmpty() && password.getText().isNotEmpty()) {
             if(username.getText().toString()=="admin" && password.getText().toString()=="123"){
-
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
             }else{
                 Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
             }
