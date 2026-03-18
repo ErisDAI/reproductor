@@ -9,29 +9,68 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import udelp.edu.myapplication2.client.ApiClient
+import udelp.edu.myapplication2.data.LoginRequest
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
-        val aceptarButton: Button = findViewById<Button>(R.id.aceptarLogin)
-        aceptarButton.setOnClickListener {
-           doLogin()
+        val etUsername = findViewById<EditText>(R.id.username)
+        val etPassword = findViewById<EditText>(R.id.password)
+        val btnLogin = findViewById<Button>(R.id.aceptarLogin)
+        btnLogin.setOnClickListener {
+            val usuario = etUsername.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+
+            if(usuario.isNotEmpty() || password.isNotEmpty()) {
+                Toast.makeText(this,"Completa todos los campos",
+                    Toast.LENGTH_SHORT).show()
+            }else{
+                doLogin()
+            }
         }
     }
     fun doLogin() {
-        val username : EditText = findViewById<EditText>(R.id.username)
-        val password : EditText = findViewById<EditText>(R.id.password)
-        if (username.getText().isNotEmpty() && password.getText().isNotEmpty()) {
-            if(username.getText().toString()=="admin" && password.getText().toString()=="123"){
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-            }else{
-                Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            try {
+                val username : EditText = findViewById<EditText>(R.id.username)
+                val password : EditText = findViewById<EditText>(R.id.password)
+                val request = LoginRequest(
+                    usuario = username.text.toString(),
+                    password = password.text.toString()
+                )
+                val response = ApiClient.usuarioService.login(request)
+                if (response.isSuccessful) {
+                    val usuarioResponse = response.body()
+                    if (null != usuarioResponse && usuarioResponse.usuario.isNotEmpty()) {
+
+                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                        intent.putExtra("usuario", response.body()?.usuario.toString())
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Usuario o contraseña incorrectos",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }else{
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Error inesperado",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }catch (e: Exception){
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Error de conexión",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        }else{
-            Toast.makeText(this, "Por favor ingrese un usuario y contraseña", Toast.LENGTH_SHORT).show()
+
         }
     }
 }
